@@ -1,9 +1,61 @@
+// حفظ الحسابات في localStorage
+const users = JSON.parse(localStorage.getItem("users")) || [];
+
+// دالة للتبديل بين نموذج التسجيل ونموذج إنشاء الحساب
+function showSignupForm() {
+    document.getElementById("loginForm").style.display = "none";
+    document.getElementById("signupForm").style.display = "block";
+}
+
+function showLoginForm() {
+    document.getElementById("loginForm").style.display = "block";
+    document.getElementById("signupForm").style.display = "none";
+}
+
+// دالة لتسجيل الدخول
+function login(event) {
+    event.preventDefault();
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    const user = users.find(user => user.email === email && user.password === password);
+
+    if (user) {
+        localStorage.setItem("loggedInUser", JSON.stringify(user)); // حفظ المستخدم المسجل
+        document.getElementById("loginForm").style.display = "none";
+        document.getElementById("appContent").style.display = "block";
+        displayImages(); // عرض الصور المخزنة في localStorage
+    } else {
+        alert("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+    }
+}
+
+// دالة لإنشاء حساب جديد
+function signup(event) {
+    event.preventDefault();
+    const email = document.getElementById("signupEmail").value;
+    const password = document.getElementById("signupPassword").value;
+
+    const existingUser = users.find(user => user.email === email);
+
+    if (existingUser) {
+        alert("يوجد بالفعل حساب بهذا البريد الإلكتروني.");
+        return;
+    }
+
+    const newUser = { email, password };
+    users.push(newUser);
+    localStorage.setItem("users", JSON.stringify(users)); // حفظ الحسابات
+    alert("تم إنشاء الحساب بنجاح، يمكنك الآن تسجيل الدخول.");
+    showLoginForm(); // التبديل إلى نموذج تسجيل الدخول
+}
+
 // عرض الصور المحفوظة
 function displayImages() {
     const gallery = document.getElementById('imageGallery');
     gallery.innerHTML = '';
     
-    // يمكنك استبدال هذا الجزء بجلب الصور من الخادم لاحقاً
+    // جلب الصور المخزنة من localStorage
     const images = JSON.parse(localStorage.getItem('bbImages')) || [];
     
     images.forEach((imageData, index) => {
@@ -48,4 +100,11 @@ function uploadImages() {
 }
 
 // عرض الصور عند تحميل الصفحة
-window.onload = displayImages;
+window.onload = function() {
+    const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+    if (loggedInUser) {
+        document.getElementById("loginForm").style.display = "none";
+        document.getElementById("appContent").style.display = "block";
+        displayImages(); // عرض الصور المخزنة
+    }
+};
