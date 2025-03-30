@@ -12,13 +12,38 @@
     </header>
     
     <main>
-        <div class="upload-section">
-            <input type="file" id="imageUpload" accept="image/*" multiple>
-            <button onclick="uploadImages()">رفع الصور</button>
+        <!-- نموذج تسجيل الدخول أو إنشاء حساب -->
+        <div id="loginForm">
+            <h2>تسجيل الدخول</h2>
+            <form onsubmit="login(event)">
+                <input type="email" id="email" placeholder="البريد الإلكتروني" required><br><br>
+                <input type="password" id="password" placeholder="كلمة المرور" required><br><br>
+                <button type="submit">تسجيل الدخول</button>
+            </form>
+            <p>لا تمتلك حساب؟ <a href="javascript:void(0);" onclick="showSignupForm()">إنشاء حساب</a></p>
         </div>
-        
-        <div class="gallery" id="imageGallery">
-            <!-- ستظهر الصور هنا -->
+
+        <!-- نموذج إنشاء الحساب -->
+        <div id="signupForm" style="display:none;">
+            <h2>إنشاء حساب</h2>
+            <form onsubmit="signup(event)">
+                <input type="email" id="signupEmail" placeholder="البريد الإلكتروني" required><br><br>
+                <input type="password" id="signupPassword" placeholder="كلمة المرور" required><br><br>
+                <button type="submit">إنشاء حساب</button>
+            </form>
+            <p>لديك حساب بالفعل؟ <a href="javascript:void(0);" onclick="showLoginForm()">تسجيل الدخول</a></p>
+        </div>
+
+        <!-- القسم الذي يظهر بعد تسجيل الدخول -->
+        <div id="appContent" style="display:none;">
+            <div class="upload-section">
+                <input type="file" id="imageUpload" accept="image/*" multiple>
+                <button onclick="uploadImages()">رفع الصور</button>
+            </div>
+            
+            <div class="gallery" id="imageGallery">
+                <!-- ستظهر الصور هنا -->
+            </div>
         </div>
     </main>
     
