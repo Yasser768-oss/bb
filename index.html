@@ -3,38 +3,558 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>موقع الصور الشخصية - bb</title>
-    <link rel="stylesheet" href="style.css">
+    <title>معرض الصور الشخصية - bb</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap">
+    <!-- إضافة مكتبة Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --error-color: #e74c3c;
+            --success-color: #2ecc71;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        
+        header {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .auth-container {
+            max-width: 500px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        
+        input {
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        button {
+            width: 100%;
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            border-radius: 4px;
+            border: none;
+            font-size: 1rem;
+            font-family: 'Tajawal', sans-serif;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: var(--error-color);
+            color: white;
+        }
+        
+        button:hover {
+            opacity: 0.9;
+        }
+        
+        .upload-section {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            padding: 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .gallery img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+        
+        .gallery img:hover {
+            transform: scale(1.03);
+        }
+        
+        #progressBar {
+            width: 100%;
+            background-color: #f1f1f1;
+            border-radius: 4px;
+            margin: 1rem 0;
+        }
+        
+        #progressBarFill {
+            height: 20px;
+            background-color: var(--success-color);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .status-message {
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        .error {
+            background-color: #ffebee;
+            color: var(--error-color);
+        }
+        
+        .success {
+            background-color: #e8f5e9;
+            color: var(--success-color);
+        }
+        
+        .info {
+            background-color: #e3f2fd;
+            color: var(--primary-color);
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+        }
+        
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 0.5rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .tab.active {
+            border-bottom: 2px solid var(--primary-color);
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background-color: var(--secondary-color);
+            color: white;
+            margin-top: 2rem;
+        }
+        
+        #userInfo {
+            margin: 0.5rem 0;
+        }
+        
+        #logoutBtn {
+            position: absolute;
+            left: 1rem;
+            top: 1rem;
+            width: auto;
+            padding: 0.5rem 1rem;
+        }
+    </style>
 </head>
 <body>
     <header>
+        <button id="logoutBtn" onclick="logout()" style="display:none;" class="btn-danger">تسجيل الخروج</button>
         <h1>معرض الصور الشخصية</h1>
-        <div id="userInfo"></div> <!-- لعرض حالة تسجيل الدخول -->
-        <button id="logoutBtn" onclick="logout()" style="display:none;">تسجيل الخروج</button> <!-- زر تسجيل الخروج -->
+        <div id="userInfo"></div>
     </header>
     
     <main>
-        <div id="loginSection">
-            <h2>تسجيل الدخول</h2>
-            <input type="email" id="email" placeholder="البريد الإلكتروني">
-            <input type="password" id="password" placeholder="كلمة المرور">
-            <button onclick="login()">تسجيل الدخول</button>
+        <!-- قسم المصادقة -->
+        <div id="authSection" class="auth-container">
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('login')">تسجيل الدخول</div>
+                <div class="tab" onclick="switchTab('register')">إنشاء حساب</div>
+            </div>
+            
+            <!-- تسجيل الدخول -->
+            <div id="loginTab" class="tab-content active">
+                <div class="form-group">
+                    <label for="email">البريد الإلكتروني</label>
+                    <input type="email" id="email" placeholder="example@example.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">كلمة المرور</label>
+                    <input type="password" id="password" placeholder="كلمة المرور" required>
+                </div>
+                
+                <button onclick="login()" class="btn-primary">تسجيل الدخول</button>
+                <div id="loginStatus" class="status-message"></div>
+            </div>
+            
+            <!-- إنشاء حساب -->
+            <div id="registerTab" class="tab-content">
+                <div class="form-group">
+                    <label for="regEmail">البريد الإلكتروني</label>
+                    <input type="email" id="regEmail" placeholder="example@example.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="regPassword">كلمة المرور</label>
+                    <input type="password" id="regPassword" placeholder="كلمة المرور (6 أحرف على الأقل)" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">تأكيد كلمة المرور</label>
+                    <input type="password" id="confirmPassword" placeholder="أعد إدخال كلمة المرور" required>
+                </div>
+                
+                <button onclick="register()" class="btn-primary">إنشاء حساب</button>
+                <div id="registerStatus" class="status-message"></div>
+            </div>
         </div>
         
-        <div class="upload-section" id="uploadSection" style="display:none;">
+        <!-- قسم رفع الصور -->
+        <div id="uploadSection" class="upload-section" style="display:none;">
+            <h2>رفع الصور</h2>
             <input type="file" id="imageUpload" accept="image/*" multiple>
-            <button onclick="uploadImages()">رفع الصور</button>
+            <div id="progressBar">
+                <div id="progressBarFill"></div>
+            </div>
+            <button onclick="uploadImages()" class="btn-primary">رفع الصور المحددة</button>
+            <div id="uploadStatus" class="status-message"></div>
         </div>
 
-        <div class="gallery" id="imageGallery">
-            <!-- ستظهر الصور هنا -->
-        </div>
+        <!-- معرض الصور -->
+        <div class="gallery" id="imageGallery"></div>
     </main>
     
     <footer>
-        <p>موقع bb © 2023 - جميع الحقوق محفوظة</p>
+        <p>موقع bb © <span id="currentYear"></span> - جميع الحقوق محفوظة</p>
     </footer>
     
-    <script src="script.js"></script>
+    <script>
+        // تهيئة Firebase (استبدل بقيم مشروعك)
+        const firebaseConfig = {
+            apiKey: "AIzaSyYourApiKey",
+            authDomain: "your-project.firebaseapp.com",
+            projectId: "your-project",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdef123456"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const storage = firebase.storage();
+        const auth = firebase.auth();
+
+        // عناصر DOM
+        const authSection = document.getElementById('authSection');
+        const uploadSection = document.getElementById('uploadSection');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const gallery = document.getElementById('imageGallery');
+        const progressBarFill = document.getElementById('progressBarFill');
+        const uploadStatus = document.getElementById('uploadStatus');
+        const loginStatus = document.getElementById('loginStatus');
+        const registerStatus = document.getElementById('registerStatus');
+        const currentYear = document.getElementById('currentYear');
+
+        // سنة حقوق النشر
+        currentYear.textContent = new Date().getFullYear();
+
+        // تبديل بين تبويبات تسجيل الدخول وإنشاء حساب
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            if (tabName === 'login') {
+                document.querySelector('.tab:nth-child(1)').classList.add('active');
+                document.getElementById('loginTab').classList.add('active');
+            } else {
+                document.querySelector('.tab:nth-child(2)').classList.add('active');
+                document.getElementById('registerTab').classList.add('active');
+            }
+        }
+
+        // تسجيل الدخول
+        function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                showStatus('loginStatus', 'الرجاء إدخال البريد الإلكتروني وكلمة المرور', 'error');
+                return;
+            }
+
+            showStatus('loginStatus', 'جاري تسجيل الدخول...', 'info');
+            
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    authSection.style.display = 'none';
+                    uploadSection.style.display = 'block';
+                    logoutBtn.style.display = 'block';
+                    document.getElementById('userInfo').textContent = `مرحباً، ${userCredential.user.email}`;
+                    loadImages();
+                    showStatus('loginStatus', 'تم تسجيل الدخول بنجاح', 'success');
+                })
+                .catch((error) => {
+                    showStatus('loginStatus', 'خطأ في التسجيل: ' + getAuthErrorMessage(error), 'error');
+                });
+        }
+
+        // إنشاء حساب جديد
+        function register() {
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (!email || !password || !confirmPassword) {
+                showStatus('registerStatus', 'الرجاء إدخال جميع الحقول', 'error');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showStatus('registerStatus', 'كلمة المرور غير متطابقة', 'error');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showStatus('registerStatus', 'كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'error');
+                return;
+            }
+
+            showStatus('registerStatus', 'جاري إنشاء الحساب...', 'info');
+            
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    showStatus('registerStatus', 'تم إنشاء الحساب بنجاح! جاري تسجيل الدخول...', 'success');
+                    
+                    // تسجيل الدخول تلقائياً بعد إنشاء الحساب
+                    authSection.style.display = 'none';
+                    uploadSection.style.display = 'block';
+                    logoutBtn.style.display = 'block';
+                    document.getElementById('userInfo').textContent = `مرحباً، ${userCredential.user.email}`;
+                    loadImages();
+                    
+                    // الانتقال إلى تبويب تسجيل الدخول
+                    switchTab('login');
+                })
+                .catch((error) => {
+                    showStatus('registerStatus', 'خطأ في إنشاء الحساب: ' + getAuthErrorMessage(error), 'error');
+                });
+        }
+
+        // رفع الصور
+        function uploadImages() {
+            const files = document.getElementById('imageUpload').files;
+            
+            if (files.length === 0) {
+                showStatus('uploadStatus', 'الرجاء اختيار صورة واحدة على الأقل', 'error');
+                return;
+            }
+
+            showStatus('uploadStatus', `جاري رفع ${files.length} صورة...`, 'info');
+            progressBarFill.style.width = '0%';
+
+            const uploadPromises = [];
+            const userId = auth.currentUser.uid;
+            
+            Array.from(files).forEach((file, index) => {
+                // إضافة الطابع الزمني لاسم الملف لتجنب التكرار
+                const timestamp = Date.now();
+                const fileName = `${timestamp}_${file.name}`;
+                const storageRef = storage.ref(`users/${userId}/images/${fileName}`);
+                const uploadTask = storageRef.put(file);
+                
+                uploadPromises.push(
+                    new Promise((resolve, reject) => {
+                        uploadTask.on('state_changed',
+                            (snapshot) => {
+                                // تحديث شريط التقدم
+                                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                                progressBarFill.style.width = `${progress}%`;
+                            },
+                            (error) => {
+                                reject(error);
+                            },
+                            () => {
+                                resolve(uploadTask.snapshot.ref.getDownloadURL());
+                            }
+                        );
+                    })
+                );
+            });
+
+            Promise.all(uploadPromises)
+                .then(() => {
+                    showStatus('uploadStatus', `تم رفع ${files.length} صورة بنجاح!`, 'success');
+                    loadImages();
+                })
+                .catch((error) => {
+                    showStatus('uploadStatus', 'حدث خطأ أثناء رفع الصور: ' + error.message, 'error');
+                });
+        }
+
+        // تحميل الصور
+        function loadImages() {
+            gallery.innerHTML = '<p class="status-message info">جارٍ تحميل الصور...</p>';
+            
+            const userId = auth.currentUser.uid;
+            const storageRef = storage.ref(`users/${userId}/images`);
+            
+            storageRef.listAll()
+                .then((result) => {
+                    gallery.innerHTML = '';
+                    
+                    if (result.items.length === 0) {
+                        gallery.innerHTML = '<p class="status-message info">لا توجد صور حتى الآن</p>';
+                        return;
+                    }
+                    
+                    result.items.forEach((itemRef) => {
+                        itemRef.getDownloadURL()
+                            .then((url) => {
+                                const imgContainer = document.createElement('div');
+                                imgContainer.className = 'image-container';
+                                
+                                const img = document.createElement('img');
+                                img.src = url;
+                                img.alt = 'صورة شخصية';
+                                
+                                imgContainer.appendChild(img);
+                                gallery.appendChild(imgContainer);
+                            })
+                            .catch((error) => {
+                                console.error("Error getting download URL:", error);
+                            });
+                    });
+                })
+                .catch((error) => {
+                    gallery.innerHTML = '<p class="status-message error">حدث خطأ أثناء جلب الصور</p>';
+                    console.error("Error listing images:", error);
+                });
+        }
+
+        // تسجيل الخروج
+        function logout() {
+            auth.signOut()
+                .then(() => {
+                    authSection.style.display = 'block';
+                    uploadSection.style.display = 'none';
+                    logoutBtn.style.display = 'none';
+                    gallery.innerHTML = '';
+                    document.getElementById('email').value = '';
+                    document.getElementById('password').value = '';
+                    document.getElementById('regEmail').value = '';
+                    document.getElementById('regPassword').value = '';
+                    document.getElementById('confirmPassword').value = '';
+                    switchTab('login');
+                })
+                .catch((error) => {
+                    showStatus('uploadStatus', 'حدث خطأ أثناء تسجيل الخروج: ' + error.message, 'error');
+                });
+        }
+
+        // عرض رسائل الحالة
+        function showStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = 'status-message ' + type;
+        }
+
+        // ترجمة أخطاء المصادقة
+        function getAuthErrorMessage(error) {
+            switch (error.code) {
+                case 'auth/email-already-in-use':
+                    return 'هذا البريد الإلكتروني مستخدم بالفعل';
+                case 'auth/invalid-email':
+                    return 'بريد إلكتروني غير صالح';
+                case 'auth/operation-not-allowed':
+                    return 'هذه العملية غير مسموح بها';
+                case 'auth/weak-password':
+                    return 'كلمة المرور ضعيفة جداً';
+                case 'auth/user-disabled':
+                    return 'هذا الحساب معطل';
+                case 'auth/user-not-found':
+                    return 'لا يوجد حساب مرتبط بهذا البريد الإلكتروني';
+                case 'auth/wrong-password':
+                    return 'كلمة المرور غير صحيحة';
+                default:
+                    return error.message;
+            }
+        }
+
+        // التحقق من حالة المستخدم عند التحميل
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                authSection.style.display = 'none';
+                uploadSection.style.display = 'block';
+                logoutBtn.style.display = 'block';
+                document.getElementById('userInfo').textContent = `مرحباً، ${user.email}`;
+                loadImages();
+            } else {
+                authSection.style.display = 'block';
+                uploadSection.style.display = 'none';
+                logoutBtn.style.display = 'none';
+            }
+        });
+    </script>
 </body>
 </html>
