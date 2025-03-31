@@ -1,105 +1,67 @@
-// دالة لتسجيل الدخول
-function login() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    
-    // التحقق من صحة البريد الإلكتروني وكلمة المرور
-    if (email && password) {
-        localStorage.setItem('email', email);
-        localStorage.setItem('password', password);
-        document.getElementById('loginSection').style.display = 'none';
-        document.getElementById('uploadSection').style.display = 'block';
-        document.getElementById('userInfo').textContent = `مرحباً، ${email}`;
-        document.getElementById('logoutBtn').style.display = 'inline-block';
-        displayImages();
-    } else {
-        alert('يرجى إدخال البريد الإلكتروني وكلمة المرور');
-    }
-}
-
-// دالة لتسجيل الخروج
-function logout() {
-    localStorage.removeItem('email');
-    localStorage.removeItem('password');
-    document.getElementById('loginSection').style.display = 'block';
-    document.getElementById('uploadSection').style.display = 'none';
-    document.getElementById('userInfo').textContent = '';
-    document.getElementById('logoutBtn').style.display = 'none';
-    alert('تم تسجيل الخروج');
-}
-
-// عرض الصور المحفوظة
-function displayImages() {
-    const gallery = document.getElementById('imageGallery');
-    gallery.innerHTML = '';
-    
-    // جلب الصور من localStorage
-    const images = JSON.parse(localStorage.getItem('bbImages')) || [];
-    
-    images.forEach((imageData, index) => {
-        const imgElement = document.createElement('img');
-        imgElement.src = imageData;
-        imgElement.alt = `صورة شخصية ${index + 1}`;
-        
-        const deleteBtn = document.createElement('button');
-        deleteBtn.textContent = 'حذف';
-        deleteBtn.onclick = function() {
-            deleteImage(index);
-        };
-
-        const imgContainer = document.createElement('div');
-        imgContainer.className = 'image-container';
-        imgContainer.appendChild(imgElement);
-        imgContainer.appendChild(deleteBtn);
-
-        gallery.appendChild(imgContainer);
-    });
-}
-
-// رفع الصور
-function uploadImages() {
-    const input = document.getElementById('imageUpload');
-    const files = input.files;
-    
-    if (files.length === 0) {
-        alert('الرجاء اختيار صورة واحدة على الأقل');
-        return;
-    }
-    
-    const images = JSON.parse(localStorage.getItem('bbImages')) || [];
-    
-    for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            images.push(e.target.result);
-            localStorage.setItem('bbImages', JSON.stringify(images));
-            displayImages();
-        };
-        
-        reader.readAsDataURL(file);
-    }
-    
-    input.value = '';
-}
-
-// حذف صورة
-function deleteImage(index) {
-    const images = JSON.parse(localStorage.getItem('bbImages')) || [];
-    images.splice(index, 1);
-    localStorage.setItem('bbImages', JSON.stringify(images));
-    displayImages();
-}
-
-// عرض الصور عند تحميل الصفحة
-window.onload = function() {
-    const email = localStorage.getItem('email');
-    if (email) {
-        document.getElementById('loginSection').style.display = 'none';
-        document.getElementById('uploadSection').style.display = 'block';
-        document.getElementById('userInfo').textContent = `مرحباً، ${email}`;
-        document.getElementById('logoutBtn').style.display = 'inline-block';
-        displayImages();
-    }
+// استبدل هذا الكود بالكامل في ملف script.js
+const firebaseConfig = {
+  apiKey: "AIzaSyYourActualAPIKey", // استبدل بمفتاحك الفعلي
+  authDomain: "your-project-id.firebaseapp.com",
+  projectId: "your-project-id",
+  storageBucket: "your-project-id.appspot.com",
+  messagingSenderId: "1234567890",
+  appId: "1:1234567890:web:abc123def456"
 };
+
+// Initialize Firebase
+const app = firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore(); // إذا كنت تستخدم Firestore
+
+// تسجيل حساب جديد
+document.getElementById('registerBtn').addEventListener('click', async () => {
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  const confirmPassword = document.getElementById('confirmPassword').value;
+
+  if (password !== confirmPassword) {
+    showError("كلمات المرور غير متطابقة");
+    return;
+  }
+
+  try {
+    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+    console.log("تم إنشاء الحساب:", userCredential.user);
+    showSuccess("تم إنشاء الحساب بنجاح!");
+    
+    // إعادة توجيه أو تحديث الواجهة
+    window.location.href = "profile.html";
+    
+  } catch (error) {
+    console.error("خطأ في التسجيل:", error);
+    showError(getFirebaseError(error));
+  }
+});
+
+// دالة لعرض الأخطاء
+function showError(message) {
+  const errorDiv = document.createElement('div');
+  errorDiv.className = 'error-message';
+  errorDiv.textContent = message;
+  
+  const form = document.querySelector('form');
+  form.appendChild(errorDiv);
+  
+  setTimeout(() => errorDiv.remove(), 5000);
+}
+
+// دالة لعرض نجاح
+function showSuccess(message) {
+  alert(message); // أو استخدم واجهة أفضل
+}
+
+// ترجمة أخطاء Firebase
+function getFirebaseError(error) {
+  const errorMap = {
+    "auth/invalid-api-key": "مفتاح API غير صالح - يرجى التحقق من إعدادات Firebase",
+    "auth/email-already-in-use": "البريد الإلكتروني مستخدم بالفعل",
+    "auth/weak-password": "كلمة المرور ضعيفة (يجب أن تكون 6 أحرف على الأقل)",
+    "auth/invalid-email": "بريد إلكتروني غير صالح"
+  };
+  return errorMap[error.code] || error.message;
+}
