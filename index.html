@@ -3,30 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مساعد الرياضيات للأطفال</title>
+    <title>مساعد الرياضيات التفاعلي</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>مساعد الرياضيات للأطفال</h1>
+        <h1>مساعد الرياضيات التفاعلي للأطفال</h1>
 
-        <div class="calculator">
-            <h2>أداة الحاسبة</h2>
-            <input type="text" id="input" placeholder="أدخل عملية حسابية">
-            <button onclick="calculate()">احسب</button>
-            <p id="result"></p>
-            <p id="explanation"></p>
-        </div>
-
+        <!-- واجهة الدردشة -->
         <div class="chatbot">
             <h2>اسألني أي شيء عن الرياضيات!</h2>
             <div class="chat-window" id="chat-window"></div>
             <input type="text" id="chat-input" placeholder="اكتب سؤالك هنا">
             <button onclick="chat()">إرسال</button>
         </div>
+
+        <div id="suggestions">
+            <h3>اقتراحات للتعلم:</h3>
+            <button onclick="showTip('math')">مفاهيم الرياضيات</button>
+            <button onclick="showTip('games')">ألعاب الرياضيات</button>
+            <button onclick="showTip('jokes')">نكت رياضية</button>
+        </div>
     </div>
-    
+
     <script src="script.js"></script>
 </body>
 </html>
-
