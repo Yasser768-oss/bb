@@ -9,30 +9,23 @@
 <body>
     <div class="container">
         <h1>مساعد الرياضيات للأطفال</h1>
-        
+
         <div class="calculator">
-            <input type="text" id="input" placeholder="أدخل عملية حسابية" />
+            <h2>أداة الحاسبة</h2>
+            <input type="text" id="input" placeholder="أدخل عملية حسابية">
             <button onclick="calculate()">احسب</button>
-            <button onclick="clearInput()">مسح</button>
-            <div id="result"></div>
-            <div id="explanation"></div>
+            <p id="result"></p>
+            <p id="explanation"></p>
         </div>
 
-        <div class="tools">
-            <h3>الأدوات المتاحة</h3>
-            <button onclick="showTool('basic')">الأدوات الأساسية</button>
-            <button onclick="showTool('advanced')">الأدوات المتقدمة</button>
-            <button onclick="showTool('chatbot')">مساعد دردشة</button>
-        </div>
-
-        <div id="chatbot-container" style="display:none;">
-            <h2>مساعد دردشة الرياضيات</h2>
-            <textarea id="chatbot-input" placeholder="اسألني عن الرياضيات"></textarea>
-            <button onclick="askChatbot()">اسأل</button>
-            <div id="chatbot-response"></div>
+        <div class="chatbot">
+            <h2>اسألني أي شيء عن الرياضيات!</h2>
+            <div class="chat-window" id="chat-window"></div>
+            <input type="text" id="chat-input" placeholder="اكتب سؤالك هنا">
+            <button onclick="chat()">إرسال</button>
         </div>
     </div>
-
+    
     <script src="script.js"></script>
 </body>
 </html>
