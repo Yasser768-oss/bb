@@ -1,31 +1,28 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مساعد الرياضيات التفاعلي</title>
+    <title>مساعد الرياضيات للأطفال</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>مساعد الرياضيات التفاعلي للأطفال</h1>
-
-        <!-- واجهة الدردشة -->
-        <div class="chatbot">
-            <h2>اسألني أي شيء عن الرياضيات!</h2>
-            <div class="chat-window" id="chat-window"></div>
-            <input type="text" id="chat-input" placeholder="اكتب سؤالك هنا">
-            <button onclick="chat()">إرسال</button>
+        <h1>🧮 مساعد الرياضيات الصغير</h1>
+        <div class="calculator">
+            <input type="number" id="num1" placeholder="الرقم الأول">
+            <select id="operation">
+                <option value="add">+ جمع</option>
+                <option value="subtract">- طرح</option>
+                <option value="multiply">× ضرب</option>
+                <option value="divide">÷ قسمة</option>
+            </select>
+            <input type="number" id="num2" placeholder="الرقم الثاني">
+            <button onclick="calculate()">احسب</button>
         </div>
-
-        <div id="suggestions">
-            <h3>اقتراحات للتعلم:</h3>
-            <button onclick="showTip('math')">مفاهيم الرياضيات</button>
-            <button onclick="showTip('games')">ألعاب الرياضيات</button>
-            <button onclick="showTip('jokes')">نكت رياضية</button>
-        </div>
+        <div id="result" class="result-box"></div>
+        <div id="explanation" class="explanation-box"></div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
