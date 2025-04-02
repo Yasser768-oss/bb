@@ -1,52 +1,182 @@
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f0f8ff;
-    text-align: center;
-    padding: 20px;
+:root {
+    --primary-color: #4361ee;
+    --secondary-color: #3a0ca3;
+    --accent-color: #f72585;
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
 }
 
-.container {
-    max-width: 600px;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f5f7fb;
+}
+
+.app-container {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* الشريط الجانبي */
+.sidebar {
+    width: 250px;
+    background-color: white;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--primary-color);
+    padding: 0 20px 20px;
+    text-align: center;
+}
+
+.sidebar-btn {
+    padding: 12px 20px;
+    margin: 5px 10px;
+    border: none;
+    background: none;
+    text-align: right;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s;
+    color: var(--dark-color);
+}
+
+.sidebar-btn i {
+    margin-left: 10px;
+}
+
+.sidebar-btn:hover {
+    background-color: #f0f2f5;
+}
+
+.sidebar-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.footer {
+    margin-top: auto;
+    padding: 20px;
+    text-align: center;
+    color: #6c757d;
+    font-size: 12px;
+}
+
+/* المنطقة الرئيسية */
+.main-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* واجهة الدردشة */
+.chat-interface {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-width: 800px;
     margin: 0 auto;
     background-color: white;
-    padding: 20px;
     border-radius: 15px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    box-shadow: 0 0 20px rgba(0,0,0,0.05);
+    overflow: hidden;
 }
 
-.calculator {
-    margin: 20px 0;
-}
-
-input, select, button {
-    padding: 10px;
-    margin: 5px;
-    font-size: 16px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-}
-
-button {
-    background-color: #4CAF50;
+.chat-header {
+    padding: 20px;
+    background-color: var(--primary-color);
     color: white;
-    cursor: pointer;
-    border: none;
 }
 
-button:hover {
-    background-color: #45a049;
+.chat-header h2 {
+    margin-bottom: 5px;
 }
 
-.result-box, .explanation-box {
-    margin: 20px 0;
-    padding: 15px;
+.chat-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background-color: #fafcff;
+}
+
+.message {
+    margin-bottom: 15px;
+    padding: 12px 15px;
     border-radius: 10px;
-    background-color: #e6f7ff;
-    text-align: right;
+    max-width: 80%;
 }
 
-.explanation-box {
-    background-color: #fff9e6;
-    font-size: 18px;
-    line-height: 1.6;
+.user-message {
+    background-color: var(--primary-color);
+    color: white;
+    margin-left: auto;
+    border-bottom-right-radius: 0;
 }
+
+.bot-message {
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    margin-right: auto;
+    border-bottom-left-radius: 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.chat-input {
+    display: flex;
+    padding: 15px;
+    background-color: white;
+    border-top: 1px solid #eee;
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+    font-size: 16px;
+    outline: none;
+}
+
+.chat-input button {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: none;
+    background-color: var(--primary-color);
+    color: white;
+    margin-right: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.chat-input button:hover {
+    background-color: var(--secondary-color);
+}
+
+/* الحاسبة العلمية */
+.scientific-calculator {
+    background-color: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.05);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* الألعاب التعليمية */
+.games-interface {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(
