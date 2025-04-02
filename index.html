@@ -3,26 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مساعد الرياضيات للأطفال</title>
+    <title>رياضيات - مساعد الرياضيات الذكي للأطفال</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>🧮 مساعد الرياضيات الصغير</h1>
-        <div class="calculator">
-            <input type="number" id="num1" placeholder="الرقم الأول">
-            <select id="operation">
-                <option value="add">+ جمع</option>
-                <option value="subtract">- طرح</option>
-                <option value="multiply">× ضرب</option>
-                <option value="divide">÷ قسمة</option>
-            </select>
-            <input type="number" id="num2" placeholder="الرقم الثاني">
-            <button onclick="calculate()">احسب</button>
+    <div class="app-container">
+        <!-- الشريط الجانبي -->
+        <div class="sidebar">
+            <div class="logo">🧮 رياضيات</div>
+            <button class="sidebar-btn active" id="chat-btn"><i class="fas fa-comment"></i> الدردشة الرياضية</button>
+            <button class="sidebar-btn" id="calculator-btn"><i class="fas fa-calculator"></i> الحاسبة العلمية</button>
+            <button class="sidebar-btn" id="games-btn"><i class="fas fa-gamepad"></i> الألعاب التعليمية</button>
+            <button class="sidebar-btn" id="rules-btn"><i class="fas fa-book"></i> القوانين الرياضية</button>
+            <div class="footer">رياضيات © 2023</div>
         </div>
-        <div id="result" class="result-box"></div>
-        <div id="explanation" class="explanation-box"></div>
+
+        <!-- المنطقة الرئيسية -->
+        <div class="main-content">
+            <!-- واجهة الدردشة -->
+            <div class="chat-interface" id="chat-interface">
+                <div class="chat-header">
+                    <h2><i class="fas fa-robot"></i> مساعد الرياضيات الذكي</h2>
+                    <p>اسألني أي سؤال في الرياضيات وسأجيبك مع شرح مفصل!</p>
+                </div>
+                <div class="chat-messages" id="chat-messages">
+                    <!-- الرسائل تظهر هنا -->
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="user-input" placeholder="اكتب سؤالك الرياضي هنا...">
+                    <button id="send-btn"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+
+            <!-- واجهة الحاسبة العلمية (مخفية بالبداية) -->
+            <div class="scientific-calculator" id="scientific-calculator" style="display:none;">
+                <!-- سيتم إضافتها بالكود JavaScript -->
+            </div>
+
+            <!-- واجهة الألعاب (مخفية بالبداية) -->
+            <div class="games-interface" id="games-interface" style="display:none;">
+                <!-- سيتم إضافتها بالكود JavaScript -->
+            </div>
+
+            <!-- واجهة القوانين (مخفية بالبداية) -->
+            <div class="rules-interface" id="rules-interface" style="display:none;">
+                <!-- سيتم إضافتها بالكود JavaScript -->
+            </div>
+        </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
