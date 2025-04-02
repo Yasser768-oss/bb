@@ -1,9 +1,43 @@
+// تأكد من أن هذه الأسطر موجودة في بداية الملف
 document.addEventListener('DOMContentLoaded', function() {
-    // عناصر الواجهة
-    const chatInterface = document.getElementById('chat-interface');
-    const scientificCalculator = document.getElementById('scientific-calculator');
-    const gamesInterface = document.getElementById('games-interface');
-    const rulesInterface = document.getElementById('rules-interface');
+    // عناصر الدردشة
+    const chatMessages = document.getElementById('chat-messages');
+    const userInput = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
+
+    // دالة إرسال الرسالة
+    function sendMessage() {
+        const message = userInput.value.trim();
+        if (message === '') return;
+        
+        // عرض رسالة المستخدم
+        addMessage(message, 'user');
+        userInput.value = '';
+        
+        // معالجة السؤال وإظهار الرد
+        setTimeout(() => {
+            const response = processMathQuestion(message);
+            addMessage(response, 'bot');
+        }, 1000);
+    }
+
+    // دالة إضافة الرسالة
+    function addMessage(text, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message', `${sender}-message`);
+        messageDiv.textContent = text;
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // ربط الأحداث
+    sendBtn.addEventListener('click', sendMessage);
+    userInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') sendMessage();
+    });
+
+    // باقي الكود...
+});
     
     // أزرار الشريط الجانبي
     const chatBtn = document.getElementById('chat-btn');
