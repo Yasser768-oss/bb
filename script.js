@@ -1,58 +1,45 @@
-const express = require('express');
-const { OpenAI } = require('openai');
-const axios = require('axios'); // لاستخدام Google API
-const app = express();
-const port = 3000;
-
-// مفتاح API من OpenAI (قم بإدخال مفتاحك هنا)
-const openai = new OpenAI({
-    apiKey: 'YOUR_OPENAI_API_KEY', // ضع API Key هنا
-});
-
-// مفتاح API من Google Custom Search
-const googleApiKey = 'YOUR_GOOGLE_API_KEY';
-const searchEngineId = 'YOUR_SEARCH_ENGINE_ID';
-
-app.use(express.static('public'));
-app.use(express.json());
-
-app.post('/ask', async (req, res) => {
-    const { question } = req.body;
-
-    try {
-        // إذا كانت الأسئلة تتعلق بالرياضيات، أضف تعامل خاص
-        if (question.toLowerCase().includes('رياضيات') || question.toLowerCase().includes('جمع') || question.toLowerCase().includes('طرح')) {
-            const response = await openai.chat.completions.create({
-                model: 'gpt-4',
-                messages: [
-                    { role: 'system', content: 'أنت مساعد رياضيات للأطفال وتشرح العمليات الرياضية ببساطة.' },
-                    { role: 'user', content: question },
-                ],
-            });
-
-            res.json({ answer: response.choices[0].message.content });
-        } else {
-            // البحث في Google إذا كانت الأسئلة تتعلق بمعلومات أخرى
-            const googleResponse = await axios.get(`https://www.googleapis.com/customsearch/v1`, {
-                params: {
-                    key: googleApiKey,
-                    cx: searchEngineId,
-                    q: question
-                }
-            });
-
-            if (googleResponse.data.items && googleResponse.data.items.length > 0) {
-                res.json({ answer: googleResponse.data.items[0].snippet });
+function calculate() {
+    const num1 = parseFloat(document.getElementById('num1').value);
+    const num2 = parseFloat(document.getElementById('num2').value);
+    const operation = document.getElementById('operation').value;
+    
+    let result, explanation;
+    
+    switch(operation) {
+        case 'add':
+            result = num1 + num2;
+            explanation = `جمع ${num1} و ${num2}:
+            تخيل أن لديك ${num1} تفاحة، وأعطاك صديقك ${num2} تفاحة أخرى.
+            الآن لديك ${result} تفاحات في المجموع! 🍎🍏`;
+            break;
+        case 'subtract':
+            result = num1 - num2;
+            explanation = `طرح ${num2} من ${num1}:
+            إذا كان لديك ${num1} قطعة حلوى، وأكلت ${num2} قطعة،
+            سيبقى لديك ${result} قطع حلوى. 🍬`;
+            break;
+        case 'multiply':
+            result = num1 * num2;
+            explanation = `ضرب ${num1} في ${num2}:
+            إذا كان لديك ${num1} صناديق، وفي كل صندوق ${num2} أقلام،
+            فلديك ${result} قلماً في المجموع. ✏️`;
+            break;
+        case 'divide':
+            if(num2 === 0) {
+                result = "لا يمكن القسمة على صفر!";
+                explanation = "لا يمكن تقسيم الأشياء إلى أجزاء صفرية!";
             } else {
-                res.json({ answer: 'عذرًا، لم أتمكن من إيجاد إجابة لهذه السؤال.' });
+                result = num1 / num2;
+                explanation = `قسمة ${num1} على ${num2}:
+                إذا قسمت ${num1} قطعة حلوى بين ${num2} أطفال،
+                سيحصل كل طفل على ${result.toFixed(2)} قطعة. 🍫`;
             }
-        }
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('حدث خطأ في الاتصال بـ OpenAI API أو Google API.');
+            break;
+        default:
+            result = "عملية غير صالحة";
+            explanation = "الرجاء اختيار عملية صحيحة";
     }
-});
-
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-});
+    
+    document.getElementById('result').innerHTML = `<strong>الناتج:</strong> ${result}`;
+    document.getElementById('explanation').innerText = explanation;
+}
