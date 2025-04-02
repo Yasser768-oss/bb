@@ -1,38 +1,58 @@
-function chat() {
-    const chatInput = document.getElementById('chat-input').value;
-    const chatWindow = document.getElementById('chat-window');
+const express = require('express');
+const { OpenAI } = require('openai');
+const axios = require('axios'); // لاستخدام Google API
+const app = express();
+const port = 3000;
 
-    // إضافة السؤال إلى نافذة الدردشة
-    const userMessage = document.createElement('div');
-    userMessage.classList.add('user-message');
-    userMessage.textContent = "أنت: " + chatInput;
-    chatWindow.appendChild(userMessage);
+// مفتاح API من OpenAI (قم بإدخال مفتاحك هنا)
+const openai = new OpenAI({
+    apiKey: 'YOUR_OPENAI_API_KEY', // ضع API Key هنا
+});
 
-    // الرد من البوت (هنا يمكننا إضافة تحليلات وتفسير مفصل)
-    const botMessage = document.createElement('div');
-    botMessage.classList.add('bot-message');
+// مفتاح API من Google Custom Search
+const googleApiKey = 'YOUR_GOOGLE_API_KEY';
+const searchEngineId = 'YOUR_SEARCH_ENGINE_ID';
 
-    if (chatInput.includes("جمع") || chatInput.includes("+")) {
-        botMessage.textContent = "الرياضيات هي عملية جمع الأعداد مثل 3 + 2 = 5!";
-    } else if (chatInput.includes("نكت") || chatInput.includes("ألعاب")) {
-        botMessage.textContent = "هل تعرفون لماذا الرياضيات لا تحب اللعب؟ لأنها دائمًا تكون جادة!";
-    } else if (chatInput.includes("ما هو الجذر التربيعي")) {
-        botMessage.textContent = "الجذر التربيعي هو إيجاد الرقم الذي إذا ضرب بنفسه يعطيك العدد الأصلي. مثلًا الجذر التربيعي لـ 9 هو 3.";
-    } else {
-        botMessage.textContent = "أريد أن أساعدك! أخبرني عن سؤالك!";
+app.use(express.static('public'));
+app.use(express.json());
+
+app.post('/ask', async (req, res) => {
+    const { question } = req.body;
+
+    try {
+        // إذا كانت الأسئلة تتعلق بالرياضيات، أضف تعامل خاص
+        if (question.toLowerCase().includes('رياضيات') || question.toLowerCase().includes('جمع') || question.toLowerCase().includes('طرح')) {
+            const response = await openai.chat.completions.create({
+                model: 'gpt-4',
+                messages: [
+                    { role: 'system', content: 'أنت مساعد رياضيات للأطفال وتشرح العمليات الرياضية ببساطة.' },
+                    { role: 'user', content: question },
+                ],
+            });
+
+            res.json({ answer: response.choices[0].message.content });
+        } else {
+            // البحث في Google إذا كانت الأسئلة تتعلق بمعلومات أخرى
+            const googleResponse = await axios.get(`https://www.googleapis.com/customsearch/v1`, {
+                params: {
+                    key: googleApiKey,
+                    cx: searchEngineId,
+                    q: question
+                }
+            });
+
+            if (googleResponse.data.items && googleResponse.data.items.length > 0) {
+                res.json({ answer: googleResponse.data.items[0].snippet });
+            } else {
+                res.json({ answer: 'عذرًا، لم أتمكن من إيجاد إجابة لهذه السؤال.' });
+            }
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('حدث خطأ في الاتصال بـ OpenAI API أو Google API.');
     }
+});
 
-    chatWindow.appendChild(botMessage);
-    document.getElementById('chat-input').value = '';
-    chatWindow.scrollTop = chatWindow.scrollHeight;
-}
-
-function showTip(type) {
-    const suggestions = {
-        math: "مفاهيم الرياضيات تشمل الجبر والهندسة... يمكنني مساعدتك في كل شيء!",
-        games: "هل ترغب في لعبة رياضية؟ حاول حل الألغاز الرياضية!",
-        jokes: "لماذا لا تحب الرياضيات؟ لأنها دائمًا في حالة تقاطع!"
-    };
-
-    alert(suggestions[type]);
-}
+app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
+});
