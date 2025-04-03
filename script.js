@@ -1,3 +1,56 @@
+
+document.addEventListener('DOMContentLoaded', function() {
+    // عناصر الواجهات
+    const chatInterface = document.getElementById('chat-interface');
+    const scientificCalculator = document.getElementById('scientific-calculator');
+    const gamesInterface = document.getElementById('games-interface');
+    const rulesInterface = document.getElementById('rules-interface');
+    
+    // أزرار الشريط الجانبي
+    const chatBtn = document.getElementById('chat-btn');
+    const calculatorBtn = document.getElementById('calculator-btn');
+    const gamesBtn = document.getElementById('games-btn');
+    const rulesBtn = document.getElementById('rules-btn');
+
+    // دالة تبديل الواجهات
+    function showInterface(interfaceToShow) {
+        // إخفاء جميع الواجهات
+        [chatInterface, scientificCalculator, gamesInterface, rulesInterface].forEach(interface => {
+            interface.style.display = 'none';
+        });
+        
+        // إظهار الواجهة المطلوبة
+        interfaceToShow.style.display = 'block';
+        
+        // تحديث الأزرار النشطة
+        [chatBtn, calculatorBtn, gamesBtn, rulesBtn].forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        if (interfaceToShow === chatInterface) chatBtn.classList.add('active');
+        else if (interfaceToShow === scientificCalculator) calculatorBtn.classList.add('active');
+        else if (interfaceToShow === gamesInterface) gamesBtn.classList.add('active');
+        else if (interfaceToShow === rulesInterface) rulesBtn.classList.add('active');
+    }
+
+    // ربط الأحداث
+    chatBtn.addEventListener('click', () => showInterface(chatInterface));
+    calculatorBtn.addEventListener('click', () => {
+        showInterface(scientificCalculator);
+        initScientificCalculator(); // تأكد من وجود هذه الدالة
+    });
+    gamesBtn.addEventListener('click', () => {
+        showInterface(gamesInterface);
+        initGames(); // تأكد من وجود هذه الدالة
+    });
+    rulesBtn.addEventListener('click', () => {
+        showInterface(rulesInterface);
+        initMathRules(); // تأكد من وجود هذه الدالة
+    });
+
+    // إظهار واجهة الدردشة كواجهة افتراضية
+    showInterface(chatInterface);
+});
 // تأكد من أن هذه الأسطر موجودة في بداية الملف
 document.addEventListener('DOMContentLoaded', function() {
     // عناصر الدردشة
