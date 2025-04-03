@@ -164,7 +164,9 @@
     </div>
 
     <script>
-        const OPENROUTER_API_KEY = 'YOUR_API_KEY'; // Replace with your OpenRouter API key
+        // OpenRouter API key
+        const OPENROUTER_API_KEY = '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';
+        
         const chatMessages = document.getElementById('chat-messages');
         const userInput = document.getElementById('user-input');
         const typingIndicator = document.getElementById('typing-indicator');
@@ -192,15 +194,15 @@
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-                        'HTTP-Referer': 'https://github.com/yourusername/yourrepo', // Replace with your website
+                        'HTTP-Referer': window.location.href,
                         'X-Title': 'AI Chatbot'
                     },
                     body: JSON.stringify({
-                        model: 'mistralai/mistral-7b-instruct',
+                        model: 'anthropic/claude-2',
                         messages: [
                             {
                                 role: 'system',
-                                content: 'You are a helpful AI assistant.'
+                                content: 'You are a helpful AI assistant. Provide clear and concise responses.'
                             },
                             {
                                 role: 'user',
@@ -208,22 +210,18 @@
                             }
                         ],
                         temperature: 0.7,
-                        max_tokens: 1000,
-                        top_p: 0.9,
-                        frequency_penalty: 0,
-                        presence_penalty: 0
+                        max_tokens: 1000
                     })
                 });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error?.message || `HTTP error! status: ${response.status}`);
-                }
 
                 const data = await response.json();
                 
                 // Hide typing indicator
                 typingIndicator.style.display = 'none';
+
+                if (!response.ok) {
+                    throw new Error(data.error?.message || `API Error: ${response.status}`);
+                }
 
                 // Add bot response to chat
                 if (data.choices && data.choices[0] && data.choices[0].message) {
@@ -236,7 +234,7 @@
                 typingIndicator.style.display = 'none';
                 
                 // Add error message to chat
-                addMessage(`Error: ${error.message}`, 'bot');
+                addMessage(`Error: ${error.message}. Please check your API key and try again.`, 'bot');
                 console.error('Error:', error);
             }
         }
