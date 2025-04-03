@@ -1,59 +1,36 @@
 // متغيرات التطبيق
+const OPENROUTER_API_KEY = "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"; // استبدل بمفتاح API الخاص بك
 let currentInterface = 'chat';
-let currentInput = '0';
-let previousInput = '';
-let operation = null;
-let resetScreen = false;
 
 // تهيئة التطبيق عند تحميل الصفحة
 document.addEventListener('DOMContentLoaded', function() {
     // تعريف العناصر
-    const chatInterface = document.getElementById('chat-interface');
-    const scientificCalculator = document.getElementById('scientific-calculator');
-    const gamesInterface = document.getElementById('games-interface');
-    const rulesInterface = document.getElementById('rules-interface');
+    const interfaces = {
+        chat: document.getElementById('chat-interface'),
+        calculator: document.getElementById('scientific-calculator'),
+        games: document.getElementById('games-interface'),
+        rules: document.getElementById('rules-interface')
+    };
     
-    const chatBtn = document.getElementById('chat-btn');
-    const calculatorBtn = document.getElementById('calculator-btn');
-    const gamesBtn = document.getElementById('games-btn');
-    const rulesBtn = document.getElementById('rules-btn');
+    const buttons = {
+        chat: document.getElementById('chat-btn'),
+        calculator: document.getElementById('calculator-btn'),
+        games: document.getElementById('games-btn'),
+        rules: document.getElementById('rules-btn')
+    };
     
     const chatMessages = document.getElementById('chat-messages');
     const userInput = document.getElementById('user-input');
     const sendBtn = document.getElementById('send-btn');
-    const calcDisplay = document.getElementById('calc-display');
 
     // وظيفة تبديل الواجهات
     function switchInterface(interfaceName) {
-        // إخفاء جميع الواجهات
-        chatInterface.style.display = 'none';
-        scientificCalculator.style.display = 'none';
-        gamesInterface.style.display = 'none';
-        rulesInterface.style.display = 'none';
+        Object.values(interfaces).forEach(ui => ui.style.display = 'none');
+        interfaces[interfaceName].style.display = 'block';
         
-        // إظهار الواجهة المطلوبة
-        switch(interfaceName) {
-            case 'chat':
-                chatInterface.style.display = 'block';
-                break;
-            case 'calculator':
-                scientificCalculator.style.display = 'block';
-                break;
-            case 'games':
-                gamesInterface.style.display = 'block';
-                break;
-            case 'rules':
-                rulesInterface.style.display = 'block';
-                break;
-        }
+        Object.values(buttons).forEach(btn => btn.classList.remove('active'));
+        buttons[interfaceName].classList.add('active');
         
-        // تحديث الأزرار النشطة
-        chatBtn.classList.remove('active');
-        calculatorBtn.classList.remove('active');
-        gamesBtn.classList.remove('active');
-        rulesBtn.classList.remove('active');
-        
-        document.getElementById(`${interfaceName}-btn`).classList.add('active');
         currentInterface = interfaceName;
     }
 
@@ -61,106 +38,151 @@ document.addEventListener('DOMContentLoaded', function() {
     function addMessage(text, sender) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${sender}-message`;
-        messageDiv.textContent = text;
+        
+        // معالجة النص لتحويل المعادلات الرياضية
+        let processedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                               .replace(/\n/g, '<br>');
+        
+        messageDiv.innerHTML = processedText;
         chatMessages.appendChild(messageDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    // وظيفة معالجة الأسئلة الرياضية
-    function processQuestion(question) {
-        const q = question.toLowerCase();
-        const numbers = q.match(/\d+/g) || [];
-        const num1 = numbers[0] ? parseFloat(numbers[0]) : null;
-        const num2 = numbers[1] ? parseFloat(numbers[1]) : null;
+    // وظيفة التواصل مع OpenRouter API
+    async function getAIResponse(prompt) {
+        try {
+            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                    'HTTP-Referer': window.location.href,
+                    'X-Title': 'Math Assistant'
+                },
+                body: JSON.stringify({
+                    model: "openai/gpt-3.5-turbo",
+                    messages: [
+                        {
+                            role: "system",
+                            content: "أنت مساعد رياضيات ذكي يتحدث العربية بطلاقة. قدم إجابات واضحة ومبسطة تناسب الأطفال مع أمثلة عملية. ركز على المفاهيم الرياضية الأساسية والحسابات. استخدم تنسيق Markdown للتمييز بين الأجزاء المهمة."
+                        },
+                        {
+                            role: "user",
+                            content: prompt
+                        }
+                    ],
+                    temperature: 0.7,
+                    max_tokens: 1000
+                })
+            });
 
-        if (q.includes('جمع') || q.includes('+') || q.includes('اجمع')) {
-            if (num1 && num2) return `ناتج جمع ${num1} و ${num2} هو ${num1 + num2}`;
-        }
-        else if (q.includes('طرح') || q.includes('-') || q.includes('اطرح')) {
-            if (num1 && num2) return `ناتج طرح ${num2} من ${num1} هو ${num1 - num2}`;
-        }
-        else if (q.includes('ضرب') || q.includes('*') || q.includes('اضرب')) {
-            if (num1 && num2) return `ناتج ضرب ${num1} في ${num2} هو ${num1 * num2}`;
-        }
-        else if (q.includes('قسمة') || q.includes('/') || q.includes('اقسم')) {
-            if (num1 && num2) {
-                if (num2 === 0) return 'لا يمكن القسمة على صفر!';
-                return `ناتج قسمة ${num1} على ${num2} هو ${(num1 / num2).toFixed(2)}`;
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
+
+            const data = await response.json();
+            return data.choices[0].message.content;
+        } catch (error) {
+            console.error('Error calling OpenRouter API:', error);
+            return "**عذرًا**، حدث خطأ أثناء معالجة سؤالك. يرجى المحاولة مرة أخرى لاحقًا.\n\nإذا استمرت المشكلة، يمكنك طرح سؤالك بشكل مختلف أو تجربة قسم القوانين الرياضية للحصول على إجابات جاهزة.";
         }
-        else if (q.includes('جذر') || q.includes('√')) {
-            if (num1) return `الجذر التربيعي لـ ${num1} هو ${Math.sqrt(num1).toFixed(2)}`;
-        }
+    }
+
+    // إرسال الرسالة واستقبال الرد
+    async function sendMessage() {
+        const question = userInput.value.trim();
+        if (!question) return;
         
-        return "أنا مساعد الرياضيات الذكي! يمكنك سؤالي عن العمليات الحسابية أو القوانين الرياضية.";
+        addMessage(question, 'user');
+        userInput.value = '';
+        
+        // إظهار مؤشر أن البوت يكتب
+        const typingIndicator = document.createElement('div');
+        typingIndicator.className = 'message bot-message typing-indicator';
+        typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+        chatMessages.appendChild(typingIndicator);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        try {
+            const response = await getAIResponse(question);
+            chatMessages.removeChild(typingIndicator);
+            addMessage(response, 'bot');
+        } catch (error) {
+            chatMessages.removeChild(typingIndicator);
+            addMessage("**عذرًا**، تعذر الاتصال بخدمة المساعدة الذكية. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى.", 'bot');
+        }
     }
 
     // وظائف الحاسبة العلمية
+    let calcState = {
+        currentInput: '0',
+        previousInput: '',
+        operation: null,
+        resetScreen: false
+    };
+
     function updateCalculatorDisplay() {
-        calcDisplay.textContent = currentInput;
+        document.getElementById('calc-display').textContent = calcState.currentInput;
     }
 
     function handleNumberClick(number) {
-        if (currentInput === '0' || resetScreen) {
-            currentInput = number;
-            resetScreen = false;
+        if (calcState.currentInput === '0' || calcState.resetScreen) {
+            calcState.currentInput = number;
+            calcState.resetScreen = false;
         } else {
-            currentInput += number;
+            calcState.currentInput += number;
         }
         updateCalculatorDisplay();
     }
 
     function handleOperatorClick(op) {
-        if (operation !== null) calculateResult();
-        previousInput = currentInput;
-        operation = op;
-        resetScreen = true;
+        if (calcState.operation !== null) calculateResult();
+        calcState.previousInput = calcState.currentInput;
+        calcState.operation = op;
+        calcState.resetScreen = true;
     }
 
     function calculateResult() {
         let result;
-        const prev = parseFloat(previousInput);
-        const current = parseFloat(currentInput);
+        const prev = parseFloat(calcState.previousInput);
+        const current = parseFloat(calcState.currentInput);
         
-        if (isNaN(prev) || isNaN(current)) return;
+        if (isNaN(prev) return;
         
-        switch(operation) {
+        switch(calcState.operation) {
             case '+': result = prev + current; break;
             case '-': result = prev - current; break;
             case '*': result = prev * current; break;
-            case '/': result = prev / current; break;
+            case '/': 
+                if (current === 0) {
+                    addMessage("**خطأ**: لا يمكن القسمة على صفر!", 'bot');
+                    return;
+                }
+                result = prev / current; 
+                break;
             default: return;
         }
         
-        currentInput = result.toString();
-        operation = null;
+        calcState.currentInput = result.toString();
+        calcState.operation = null;
         updateCalculatorDisplay();
+        
+        // إظهار الشرح في الدردشة
+        const explanation = `ناتج العملية: ${prev} ${calcState.operation} ${current} = ${result}`;
+        addMessage(explanation, 'bot');
     }
 
     // ربط الأحداث
-    chatBtn.addEventListener('click', () => switchInterface('chat'));
-    calculatorBtn.addEventListener('click', () => switchInterface('calculator'));
-    gamesBtn.addEventListener('click', () => switchInterface('games'));
-    rulesBtn.addEventListener('click', () => switchInterface('rules'));
-
-    sendBtn.addEventListener('click', function() {
-        const question = userInput.value.trim();
-        if (question) {
-            addMessage(question, 'user');
-            userInput.value = '';
-            
-            setTimeout(() => {
-                const answer = processQuestion(question);
-                addMessage(answer, 'bot');
-            }, 500);
-        }
+    Object.entries(buttons).forEach(([name, btn]) => {
+        btn.addEventListener('click', () => switchInterface(name));
     });
 
-    userInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') sendBtn.click();
+    sendBtn.addEventListener('click', sendMessage);
+    userInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendMessage();
     });
 
-    // تهيئة الحاسبة العلمية
+    // أحداث الحاسبة العلمية
     document.querySelectorAll('.calculator-buttons .calc-btn').forEach(btn => {
         if (btn.textContent.match(/[0-9]/)) {
             btn.addEventListener('click', () => handleNumberClick(btn.textContent));
@@ -171,27 +193,36 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.querySelector('.eq-btn').addEventListener('click', calculateResult);
     document.querySelector('.func-btn[onclick="clearDisplay()"]').addEventListener('click', function() {
-        currentInput = '0';
-        previousInput = '';
-        operation = null;
+        calcState = {
+            currentInput: '0',
+            previousInput: '',
+            operation: null,
+            resetScreen: false
+        };
         updateCalculatorDisplay();
     });
 
     document.querySelector('.func-btn[onclick="backspace()"]').addEventListener('click', function() {
-        if (currentInput.length > 1) {
-            currentInput = currentInput.slice(0, -1);
+        if (calcState.currentInput.length > 1) {
+            calcState.currentInput = calcState.currentInput.slice(0, -1);
         } else {
-            currentInput = '0';
+            calcState.currentInput = '0';
         }
         updateCalculatorDisplay();
     });
 
     document.querySelector('.sci-btn[onclick="calculateSquareRoot()"]').addEventListener('click', function() {
-        currentInput = Math.sqrt(parseFloat(currentInput)).toString();
+        const num = parseFloat(calcState.currentInput);
+        if (num < 0) {
+            addMessage("**خطأ**: لا يمكن حساب الجذر التربيعي لعدد سالب!", 'bot');
+            return;
+        }
+        calcState.currentInput = Math.sqrt(num).toString();
         updateCalculatorDisplay();
+        addMessage(`الجذر التربيعي لـ ${num} هو ${calcState.currentInput}`, 'bot');
     });
 
-    // بدء التطبيق بالواجهة الرئيسية
+    // بدء التطبيق
     switchInterface('chat');
     updateCalculatorDisplay();
 });
