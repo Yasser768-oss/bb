@@ -1,14 +1,4 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مساعد الرياضيات الذكي</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="app-container"><!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -261,125 +251,3 @@
     </script>
 </body>
 </html> 
-        <!-- الشريط الجانبي -->
-        <div class="sidebar">
-            <div class="logo">🧮 رياضيات</div>
-            <button class="sidebar-btn active" id="chat-btn"><i class="fas fa-comment"></i> الدردشة الرياضية</button>
-            <button class="sidebar-btn" id="calculator-btn"><i class="fas fa-calculator"></i> الحاسبة العلمية</button>
-            <button class="sidebar-btn" id="games-btn"><i class="fas fa-gamepad"></i> الألعاب التعليمية</button>
-            <button class="sidebar-btn" id="rules-btn"><i class="fas fa-book"></i> القوانين الرياضية</button>
-            <div class="footer">رياضيات © 2023</div>
-        </div>
-
-        <!-- المنطقة الرئيسية -->
-        <div class="main-content">
-            <!-- واجهة الدردشة -->
-            <div class="chat-interface" id="chat-interface">
-                <div class="chat-header">
-                    <h2><i class="fas fa-robot"></i> مساعد الرياضيات الذكي</h2>
-                    <p>اسألني أي سؤال في الرياضيات وسأجيبك مع شرح مفصل!</p>
-                </div>
-                <div class="chat-messages" id="chat-messages">
-                    <!-- الرسائل تظهر هنا -->
-                </div>
-                <div class="chat-input">
-                    <input type="text" id="user-input" placeholder="اكتب سؤالك الرياضي هنا...">
-                    <button id="send-btn"><i class="fas fa-paper-plane"></i></button>
-                </div>
-            </div>
-
-            <!-- واجهة الحاسبة العلمية (مخفية بالبداية) -->
-            <div class="scientific-calculator" id="scientific-calculator" style="display:none;">
-                <h2><i class="fas fa-calculator"></i> الحاسبة العلمية</h2>
-                <div class="calculator-display" id="calc-display">0</div>
-                <div class="calculator-buttons">
-                    <button class="calc-btn func-btn" onclick="clearDisplay()">C</button>
-                    <button class="calc-btn func-btn" onclick="backspace()">⌫</button>
-                    <button class="calc-btn func-btn" onclick="percentage()">%</button>
-                    <button class="calc-btn op-btn" onclick="appendOperator('/')">÷</button>
-                    
-                    <button class="calc-btn" onclick="appendNumber(7)">7</button>
-                    <button class="calc-btn" onclick="appendNumber(8)">8</button>
-                    <button class="calc-btn" onclick="appendNumber(9)">9</button>
-                    <button class="calc-btn op-btn" onclick="appendOperator('*')">×</button>
-                    
-                    <button class="calc-btn" onclick="appendNumber(4)">4</button>
-                    <button class="calc-btn" onclick="appendNumber(5)">5</button>
-                    <button class="calc-btn" onclick="appendNumber(6)">6</button>
-                    <button class="calc-btn op-btn" onclick="appendOperator('-')">-</button>
-                    
-                    <button class="calc-btn" onclick="appendNumber(1)">1</button>
-                    <button class="calc-btn" onclick="appendNumber(2)">2</button>
-                    <button class="calc-btn" onclick="appendNumber(3)">3</button>
-                    <button class="calc-btn op-btn" onclick="appendOperator('+')">+</button>
-                    
-                    <button class="calc-btn" onclick="appendNumber(0)">0</button>
-                    <button class="calc-btn" onclick="appendDecimal()">.</button>
-                    <button class="calc-btn sci-btn" onclick="calculateSquareRoot()">√</button>
-                    <button class="calc-btn eq-btn" onclick="calculateResult()">=</button>
-                </div>
-                <div class="calculator-help">
-                    <p>استخدم الحاسبة العلمية لإجراء العمليات المعقدة</p>
-                </div>
-            </div>
-
-            <!-- واجهة الألعاب (مخفية بالبداية) -->
-            <div class="games-interface" id="games-interface" style="display:none;">
-                <h2><i class="fas fa-gamepad"></i> الألعاب التعليمية</h2>
-                <div class="games-grid">
-                    <div class="game-card" onclick="startGame('addition')">
-                        <img src="https://via.placeholder.com/300x200?text=تحدي+الجمع" alt="لعبة الجمع">
-                        <h3>تحدي الجمع</h3>
-                        <p>اجمع الأعداد بسرعة!</p>
-                    </div>
-                    
-                    <div class="game-card" onclick="startGame('subtraction')">
-                        <img src="https://via.placeholder.com/300x200?text=مغامرة+الطرح" alt="لعبة الطرح">
-                        <h3>مغامرة الطرح</h3>
-                        <p>اختبار مهاراتك في الطرح</p>
-                    </div>
-                    
-                    <div class="game-card" onclick="startGame('multiplication')">
-                        <img src="https://via.placeholder.com/300x200?text=سباق+الضرب" alt="لعبة الضرب">
-                        <h3>سباق الضرب</h3>
-                        <p>حسّن حفظك لجدول الضرب</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- واجهة القوانين (مخفية بالبداية) -->
-            <div class="rules-interface" id="rules-interface" style="display:none;">
-                <h2><i class="fas fa-book"></i> القوانين الرياضية</h2>
-                
-                <div class="rule-category">
-                    <h3>الجبر</h3>
-                    
-                    <div class="rule-item">
-                        <h4>قانون التوزيع</h4>
-                        <p>a × (b + c) = a×b + a×c</p>
-                        <p>ينطبق هذا القانون على ضرب عدد بمجموع عددين.</p>
-                    </div>
-                    
-                    <div class="rule-item">
-                        <h4>المعادلة التربيعية</h4>
-                        <p>لحل ax² + bx + c = 0:</p>
-                        <p>x = [-b ± √(b² - 4ac)] / 2a</p>
-                    </div>
-                </div>
-                
-                <div class="rule-category">
-                    <h3>الهندسة</h3>
-                    
-                    <div class="rule-item">
-                        <h4>نظرية فيثاغورث</h4>
-                        <p>في المثلث القائم: a² + b² = c²</p>
-                        <p>حيث c هو الوتر، وa، b هما الضلعان الآخران.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
-</body>
-</html>
